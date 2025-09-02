@@ -22,6 +22,8 @@ football-predictor/
 - **Telegram Bot**: Webhook on 8002
 - **Database**: SQLite (no port conflicts)
 
+Note: Ports 5000 and 5001 are occupied by existing services
+
 ## Quick Start
 
 1. **Backend**: `cd backend && pip install -r requirements.txt && uvicorn main:app --port 8001`

@@ -26,6 +26,7 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://127.0.0.1:3001",
         "http://127.0.0.1:3000",
+        # Note: Ports 5000 and 5001 are occupied by existing services
     ]
     
     # Database Configuration
