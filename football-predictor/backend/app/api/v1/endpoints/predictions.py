@@ -10,6 +10,7 @@ from app.core.database import get_db
 from app.models.prediction import Prediction, PredictionType, PredictionResult
 from app.models.user import User
 from app.schemas.prediction import PredictionResponse, PredictionCreate, PredictionUpdate
+from app.services.prediction_engine import PredictionEngine
 
 router = APIRouter()
 
@@ -184,3 +185,28 @@ async def get_leaderboard(
         }
         for i, user in enumerate(leaderboard)
     ]
+
+
+@router.get("/generate/{match_id}")
+async def generate_prediction(
+    match_id: int,
+    db: Session = Depends(get_db)
+):
+    """Generate AI prediction for a match"""
+    
+    try:
+        prediction_engine = PredictionEngine()
+        prediction = prediction_engine.generate_prediction(match_id)
+        
+        return prediction
+        
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate prediction: {str(e)}"
+        )

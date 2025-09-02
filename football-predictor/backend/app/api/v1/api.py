@@ -4,7 +4,7 @@ Main API router for v1 endpoints
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import auth, matches, predictions, teams, leagues, users
+from app.api.v1.endpoints import auth, matches, predictions, teams, leagues, users, admin
 
 api_router = APIRouter()
 
@@ -15,3 +15,4 @@ api_router.include_router(leagues.router, prefix="/leagues", tags=["leagues"])
 api_router.include_router(teams.router, prefix="/teams", tags=["teams"])
 api_router.include_router(matches.router, prefix="/matches", tags=["matches"])
 api_router.include_router(predictions.router, prefix="/predictions", tags=["predictions"])
+api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
