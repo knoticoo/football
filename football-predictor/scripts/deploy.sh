@@ -28,8 +28,14 @@ print_error() {
 
 # Check if running as root
 if [ "$EUID" -eq 0 ]; then
-    print_error "Please do not run this script as root"
-    exit 1
+    print_warning "Running as root. This is allowed for Docker operations."
+    print_warning "Make sure you understand the security implications."
+    read -p "Continue as root? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_error "Deployment cancelled"
+        exit 1
+    fi
 fi
 
 # Check if Docker is installed
@@ -60,17 +66,25 @@ if [ ! -f telegram-bot/.env ]; then
     exit 1
 fi
 
+# Determine if we need sudo for Docker commands
+DOCKER_CMD="docker"
+COMPOSE_CMD="docker-compose"
+if [ "$EUID" -eq 0 ]; then
+    DOCKER_CMD="sudo docker"
+    COMPOSE_CMD="sudo docker-compose"
+fi
+
 # Stop existing containers
 print_status "Stopping existing containers..."
-docker-compose down
+$COMPOSE_CMD down
 
 # Pull latest images
 print_status "Pulling latest images..."
-docker-compose pull
+$COMPOSE_CMD pull
 
 # Build and start services
 print_status "Building and starting services..."
-docker-compose up -d --build
+$COMPOSE_CMD up -d --build
 
 # Wait for services to be ready
 print_status "Waiting for services to be ready..."
@@ -102,7 +116,7 @@ fi
 
 # Show running containers
 print_status "Running containers:"
-docker-compose ps
+$COMPOSE_CMD ps
 
 print_status "Deployment completed!"
 print_status "Services are running on:"
@@ -110,5 +124,5 @@ print_status "  - Frontend: http://localhost:3001"
 print_status "  - Backend API: http://localhost:8001"
 print_status "  - Telegram Bot: http://localhost:8002"
 print_status ""
-print_status "To view logs: docker-compose logs -f"
-print_status "To stop services: docker-compose down"
+print_status "To view logs: $COMPOSE_CMD logs -f"
+print_status "To stop services: $COMPOSE_CMD down"
