@@ -58,10 +58,12 @@ services:
     ports:
       - "8002:8002"
     environment:
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-your-telegram-bot-token}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - BOT_USERNAME=${BOT_USERNAME:-CodyTips_Bot}
       - API_BASE_URL=http://backend:8001
       - DATABASE_URL=sqlite:///./football_predictor.db
       - TELEGRAM_WEBHOOK_PORT=8002
+      - ADMIN_USER_IDS=${ADMIN_USER_IDS:-}
     volumes:
       - ./telegram-bot:/app
       - bot_data:/app/data

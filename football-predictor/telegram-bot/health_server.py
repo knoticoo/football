@@ -15,7 +15,9 @@ async def health_check(request):
     return web.json_response({
         "status": "healthy",
         "service": "football-predictor-telegram-bot",
-        "port": config.WEBHOOK_PORT
+        "bot_username": config.BOT_USERNAME,
+        "port": config.WEBHOOK_PORT,
+        "webhook_configured": bool(config.WEBHOOK_URL)
     })
 
 
