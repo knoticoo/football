@@ -24,7 +24,7 @@ export default function HomePage() {
   // Fetch upcoming matches
   const { data: upcomingMatches, isLoading: matchesLoading } = useQuery(
     'upcoming-matches',
-    () => api.matches.getUpcoming({ limit: 6 }),
+    () => api.matches.getUpcoming({ limit: 6 }).then(response => response.data),
     {
       refetchInterval: 60000, // Refetch every minute
     }
@@ -33,7 +33,7 @@ export default function HomePage() {
   // Fetch user predictions
   const { data: userPredictions, isLoading: predictionsLoading } = useQuery(
     'user-predictions',
-    () => api.predictions.getUserPredictions({ limit: 5 }),
+    () => api.predictions.getUserPredictions({ limit: 5 }).then(response => response.data),
     {
       enabled: !!user,
     }
@@ -42,7 +42,7 @@ export default function HomePage() {
   // Fetch user stats
   const { data: userStats, isLoading: statsLoading } = useQuery(
     'user-stats',
-    () => api.users.getStats(),
+    () => api.users.getStats().then(response => response.data),
     {
       enabled: !!user,
     }
@@ -51,7 +51,7 @@ export default function HomePage() {
   // Fetch leaderboard
   const { data: leaderboard, isLoading: leaderboardLoading } = useQuery(
     'leaderboard',
-    () => api.predictions.getLeaderboard({ limit: 5 })
+    () => api.predictions.getLeaderboard({ limit: 5 }).then(response => response.data)
   )
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function HomePage() {
     const token = localStorage.getItem('token')
     if (token) {
       // Verify token and get user data
-      api.auth.getMe().then(setUser).catch(() => {
+      api.auth.getMe().then(response => setUser(response.data)).catch(() => {
         localStorage.removeItem('token')
       })
     }
