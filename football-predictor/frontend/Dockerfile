@@ -10,13 +10,20 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install all dependencies (including dev dependencies for build)
-RUN npm install
+RUN npm ci --only=production=false
 
 # Copy source code
 COPY . .
 
-# Build the application
+# Set environment variables for build
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build the application with verbose output
 RUN npm run build
+
+# Verify build was successful
+RUN ls -la .next/ && test -f .next/BUILD_ID
 
 # Expose port
 EXPOSE 3001
