@@ -13,6 +13,7 @@ from bot.middleware import setup_middleware
 from bot.scheduler import setup_scheduler
 from bot.webhook import setup_webhook
 from utils.logger import setup_logging
+from health_server import start_health_server, stop_health_server
 
 # Setup logging
 setup_logging()
@@ -22,10 +23,15 @@ logger = logging.getLogger(__name__)
 async def main():
     """Main function to start the bot"""
     
+    health_runner = None
+    
     try:
         # Validate configuration
         config.validate()
         logger.info("Configuration validated successfully")
+        
+        # Start health server
+        health_runner = await start_health_server()
         
         # Create application
         application = Application.builder().token(config.BOT_TOKEN).build()
@@ -65,6 +71,10 @@ async def main():
     except Exception as e:
         logger.error(f"Failed to start bot: {e}")
         raise
+    finally:
+        # Clean up health server
+        if health_runner:
+            await stop_health_server(health_runner)
 
 
 if __name__ == "__main__":
