@@ -117,12 +117,6 @@ async def telegram_auth(telegram_data: dict, db: Session = Depends(get_db)):
     return user
 
 
-@router.get("/me", response_model=UserResponse)
-async def get_current_user(current_user: User = Depends(get_current_user)):
-    """Get current user information"""
-    return current_user
-
-
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     """Get current user from token"""
     # This would decode and validate the JWT token
@@ -131,3 +125,9 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail="Token validation not implemented yet"
     )
+
+
+@router.get("/me", response_model=UserResponse)
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """Get current user information"""
+    return current_user
