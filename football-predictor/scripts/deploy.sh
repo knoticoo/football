@@ -69,18 +69,18 @@ check_service() {
 }
 
 # Check services
-check_service "Backend API" "http://localhost:8001/health"
-check_service "Frontend" "http://localhost:3001"
-check_service "Telegram Bot" "http://localhost:8002/health"
+check_service "Backend API" "http://localhost:8003/health"
+check_service "Frontend" "http://localhost:3002"
+check_service "Telegram Bot" "http://localhost:8004/health"
 
 echo ""
 echo "🎉 Deployment completed!"
 echo ""
 echo "📱 Services are running on:"
-echo "   - Frontend: http://localhost:3001"
-echo "   - Backend API: http://localhost:8001"
-echo "   - Telegram Bot: http://localhost:8002"
-echo "   - API Docs: http://localhost:8001/docs"
+echo "   - Frontend: http://localhost:3002"
+echo "   - Backend API: http://localhost:8003"
+echo "   - Telegram Bot: http://localhost:8004"
+echo "   - API Docs: http://localhost:8003/docs"
 echo ""
 echo "🤖 Telegram Bot: @CodyTips_Bot"
 echo "   Send /start to begin using the bot"
