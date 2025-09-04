@@ -2,38 +2,91 @@
 
 A comprehensive football prediction system with web interface and Telegram bot integration.
 
-## Project Structure
+## 🤖 Telegram Bot
+
+- **Bot Username**: @CodyTips_Bot
+- **Bot ID**: 8446527732
+- **Bot Name**: DailyTips
+
+## 🚀 Quick Start
+
+### Using Docker (Recommended)
+
+1. **Configure environment:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+2. **Deploy with one command:**
+   ```bash
+   ./scripts/deploy.sh
+   ```
+
+3. **Access services:**
+   - Frontend: http://localhost:3001
+   - Backend API: http://localhost:8001
+   - API Docs: http://localhost:8001/docs
+   - Telegram Bot: @CodyTips_Bot
+
+### Manual Setup
+
+1. **Backend**: `cd backend && pip install -r requirements.txt && uvicorn main:app --port 8001`
+2. **Frontend**: `cd frontend && npm install && npm run dev -- --port 3001`
+3. **Bot**: `cd telegram-bot && pip install -r requirements.txt && python main.py`
+
+## 📁 Project Structure
 
 ```
 football-predictor/
 ├── backend/          # FastAPI backend (Port 8001)
-├── frontend/         # React/Next.js frontend (Port 3001)
-├── telegram-bot/     # Telegram bot service
-├── shared/           # Shared utilities and models
-├── docker/           # Docker configurations
+├── frontend/         # Next.js frontend (Port 3001)
+├── telegram-bot/     # Telegram bot service (Port 8002)
+├── nginx/            # Nginx reverse proxy
 ├── scripts/          # Deployment and utility scripts
-└── docs/            # Documentation
+├── docker-compose.yml
+├── .env              # Environment configuration
+└── TROUBLESHOOTING.md
 ```
 
-## Port Configuration (to avoid conflicts)
+## 🔧 Port Configuration
 
 - **Backend API**: 8001
 - **Frontend**: 3001
-- **Telegram Bot**: Webhook on 8002
-- **Database**: SQLite (no port conflicts)
+- **Telegram Bot**: 8002
+- **Redis**: 6379
+- **Nginx**: 80, 443
 
-Note: Ports 5000 and 5001 are occupied by existing services
+## 📋 Environment Variables
 
-## Quick Start
+Required:
+- `TELEGRAM_BOT_TOKEN`: Your bot token from @BotFather
+- `SECRET_KEY`: Secret key for JWT tokens
 
-1. **Backend**: `cd backend && pip install -r requirements.txt && uvicorn main:app --port 8001`
-2. **Frontend**: `cd frontend && npm install && npm run dev -- --port 3001`
-3. **Bot**: `cd telegram-bot && pip install -r requirements.txt && python bot.py`
+Optional:
+- `FOOTBALL_DATA_API_KEY`: API key for football data
+- `API_SPORTS_KEY`: API key for sports data
+- `ADMIN_USER_IDS`: Comma-separated admin user IDs
 
-## Environment Variables
+## 🛠️ Useful Commands
 
-Create `.env` files in each service directory with appropriate configurations.
+```bash
+# View all logs
+docker compose logs -f
 
-## Deployment
+# Restart specific service
+docker compose restart telegram-bot
 
-Use the provided Docker setup for easy deployment on your VPS.
+# Check service health
+./scripts/check-services.sh
+
+# Test bot configuration
+./scripts/test-bot.py
+
+# Complete reset
+docker compose down -v && docker compose up --build -d
+```
+
+## 🆘 Troubleshooting
+
+See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for common issues and solutions.

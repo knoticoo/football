@@ -22,7 +22,7 @@ class BotConfig:
     API_V1_STR: str = "/api/v1"
     
     # Bot Settings
-    BOT_USERNAME: Optional[str] = os.getenv("BOT_USERNAME")
+    BOT_USERNAME: Optional[str] = os.getenv("BOT_USERNAME", "CodyTips_Bot")
     ADMIN_USER_IDS: list = [int(x) for x in os.getenv("ADMIN_USER_IDS", "").split(",") if x]
     
     # Rate Limiting
