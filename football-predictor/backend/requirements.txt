@@ -13,6 +13,9 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
 
+# Email validation for Pydantic
+email-validator==2.1.0
+
 # HTTP requests and API clients
 httpx==0.25.2
 aiohttp==3.9.1
