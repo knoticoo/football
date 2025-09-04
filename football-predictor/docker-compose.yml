@@ -5,7 +5,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8001:8001"
+      - "8003:8001"
     environment:
       - DATABASE_URL=sqlite:///./football_predictor.db
       - SECRET_KEY=your-secret-key-change-in-production
@@ -31,9 +31,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - "3002:3001"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8001
+      - NEXT_PUBLIC_API_URL=http://localhost:8003
       - NEXT_PUBLIC_APP_NAME=Football Predictor
     volumes:
       - ./frontend:/app
@@ -56,7 +56,7 @@ services:
       context: ./telegram-bot
       dockerfile: Dockerfile
     ports:
-      - "8002:8002"
+      - "8004:8002"
     environment:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - BOT_USERNAME=${BOT_USERNAME:-CodyTips_Bot}
@@ -83,7 +83,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
     restart: unless-stopped
@@ -94,8 +94,8 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
+      - "8443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/ssl:/etc/nginx/ssl
