@@ -57,9 +57,18 @@ class Logger {
   }
 
   private async clearLogs() {
+    // Only make API calls in browser environment
+    if (typeof window === 'undefined') {
+      console.log('🧹 Skipping log clear during SSR/build')
+      return
+    }
+
     try {
+      // Get the API base URL from environment or use default
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8003'
+      
       // Clear logs on backend
-      await fetch('/api/logs/clear', {
+      await fetch(`${apiBaseUrl}/api/logs/clear`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,12 +84,20 @@ class Logger {
   private async flushLogs() {
     if (this.logBuffer.length === 0) return
 
+    // Only make API calls in browser environment
+    if (typeof window === 'undefined') {
+      return
+    }
+
     const logsToFlush = [...this.logBuffer]
     this.logBuffer = []
 
     try {
+      // Get the API base URL from environment or use default
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8003'
+      
       // Send logs to backend endpoint
-      const response = await fetch('/api/logs', {
+      const response = await fetch(`${apiBaseUrl}/api/logs`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
