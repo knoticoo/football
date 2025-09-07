@@ -20,28 +20,18 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   
-  console.log('📝 RegisterPage component rendered')
-  console.log('📝 Form data:', { ...formData, password: '***', confirmPassword: '***' })
-  console.log('👁️ Show password states:', { showPassword, showConfirmPassword })
 
   const registerMutation = useMutation(
     (userData: { username: string; email: string; password: string; full_name?: string }) => {
-      console.log('📝 Attempting registration with data:', { ...userData, password: '***' })
       return api.auth.register(userData)
     },
     {
       onSuccess: (response) => {
-        console.log('✅ Registration successful:', response.data)
-        console.log('🎉 Showing success toast')
         toast.success('Account created successfully! Please sign in.')
-        console.log('🔄 Redirecting to login page')
         router.push('/auth/login')
       },
       onError: (error: any) => {
-        console.error('❌ Registration failed:', error)
-        console.error('❌ Error response:', error.response?.data)
         const message = error.response?.data?.detail || 'Registration failed'
-        console.log('🚨 Showing error toast:', message)
         toast.error(message)
       },
     }
@@ -49,33 +39,25 @@ export default function RegisterPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('📝 Registration form submitted with data:', { ...formData, password: '***', confirmPassword: '***' })
-    
     if (!formData.username || !formData.email || !formData.password) {
-      console.log('❌ Form validation failed - missing required fields')
       toast.error('Please fill in all required fields')
       return
     }
 
     if (formData.password !== formData.confirmPassword) {
-      console.log('❌ Form validation failed - passwords do not match')
       toast.error('Passwords do not match')
       return
     }
 
     if (formData.password.length < 6) {
-      console.log('❌ Form validation failed - password too short')
       toast.error('Password must be at least 6 characters long')
       return
     }
-
-    console.log('✅ Form validation passed - submitting registration request')
     const { confirmPassword, ...userData } = formData
     registerMutation.mutate(userData)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('📝 Input changed:', e.target.name, '=', e.target.value)
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,

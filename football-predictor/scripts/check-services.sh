@@ -2,7 +2,7 @@
 
 # Football Predictor Service Health Check Script
 
-echo "🔍 Checking Football Predictor Services..."
+echo "Checking Football Predictor Services..."
 
 # Function to check service health
 check_service() {

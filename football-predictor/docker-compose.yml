@@ -9,7 +9,7 @@ services:
     environment:
       - DATABASE_URL=sqlite:///./football_predictor.db
       - SECRET_KEY=your-secret-key-change-in-production
-      - DEBUG=true
+      - DEBUG=false
       - HOST=0.0.0.0
       - PORT=8001
     volumes:

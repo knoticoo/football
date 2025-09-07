@@ -31,7 +31,6 @@ async def init_db():
     
     # Create all tables
     Base.metadata.create_all(bind=engine)
-    print("Database tables created successfully")
 
 
 def get_db():

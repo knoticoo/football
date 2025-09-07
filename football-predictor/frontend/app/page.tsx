@@ -22,26 +22,21 @@ import { LoadingSpinner } from '@/components/LoadingSpinner'
 export default function HomePage() {
   const [user, setUser] = useState(null)
   
-  logger.info('HomePage', 'Component rendered')
-  logger.debug('HomePage', 'Current user state', { user })
 
   // Fetch upcoming matches
   const { data: upcomingMatches, isLoading: matchesLoading, error: matchesError } = useQuery(
     'upcoming-matches',
     () => {
-      logger.info('HomePage', 'Fetching upcoming matches...')
       return api.matches.getUpcoming({ limit: 6 }).then(response => {
-        logger.info('HomePage', 'Upcoming matches fetched successfully', { count: response.data?.length || 0 })
         return response.data
       }).catch(error => {
-        logger.error('HomePage', 'Failed to fetch upcoming matches', error)
         throw error
       })
     },
     {
       refetchInterval: 60000, // Refetch every minute
       onError: (error) => {
-        logger.error('HomePage', 'Upcoming matches query error', error)
+        // Handle error silently
       }
     }
   )
@@ -50,19 +45,16 @@ export default function HomePage() {
   const { data: userPredictions, isLoading: predictionsLoading, error: predictionsError } = useQuery(
     'user-predictions',
     () => {
-      logger.info('HomePage', 'Fetching user predictions...')
       return api.predictions.getUserPredictions({ limit: 5 }).then(response => {
-        logger.info('HomePage', 'User predictions fetched successfully', { count: response.data?.length || 0 })
         return response.data
       }).catch(error => {
-        logger.error('HomePage', 'Failed to fetch user predictions', error)
         throw error
       })
     },
     {
       enabled: !!user,
       onError: (error) => {
-        logger.error('HomePage', 'User predictions query error', error)
+        // Handle error silently
       }
     }
   )
@@ -71,19 +63,16 @@ export default function HomePage() {
   const { data: userStats, isLoading: statsLoading, error: statsError } = useQuery(
     'user-stats',
     () => {
-      logger.info('HomePage', 'Fetching user stats...')
       return api.users.getStats().then(response => {
-        logger.info('HomePage', 'User stats fetched successfully', response.data)
         return response.data
       }).catch(error => {
-        logger.error('HomePage', 'Failed to fetch user stats', error)
         throw error
       })
     },
     {
       enabled: !!user,
       onError: (error) => {
-        logger.error('HomePage', 'User stats query error', error)
+        // Handle error silently
       }
     }
   )
@@ -92,42 +81,31 @@ export default function HomePage() {
   const { data: leaderboard, isLoading: leaderboardLoading, error: leaderboardError } = useQuery(
     'leaderboard',
     () => {
-      logger.info('HomePage', 'Fetching leaderboard...')
       return api.predictions.getLeaderboard({ limit: 5 }).then(response => {
-        logger.info('HomePage', 'Leaderboard fetched successfully', { count: response.data?.length || 0 })
         return response.data
       }).catch(error => {
-        logger.error('HomePage', 'Failed to fetch leaderboard', error)
         throw error
       })
     },
     {
       onError: (error) => {
-        logger.error('HomePage', 'Leaderboard query error', error)
+        // Handle error silently
       }
     }
   )
 
   useEffect(() => {
-    logger.info('HomePage', 'useEffect triggered - checking user authentication')
     // Check if user is logged in
     const token = localStorage.getItem('token')
-    logger.debug('HomePage', 'Token found in localStorage', { hasToken: !!token })
     
     if (token) {
-      logger.info('HomePage', 'Verifying token and fetching user data...')
       // Verify token and get user data
       api.auth.getMe().then(response => {
-        logger.info('HomePage', 'User authenticated successfully', response.data)
         setUser(response.data)
       }).catch(error => {
-        logger.error('HomePage', 'Token verification failed', error)
-        logger.warn('HomePage', 'Removing invalid token')
         localStorage.removeItem('token')
         setUser(null)
       })
-    } else {
-      logger.warn('HomePage', 'No token found - user not authenticated')
     }
   }, [])
 
@@ -154,29 +132,7 @@ export default function HomePage() {
     },
   ]
 
-  logger.debug('HomePage', 'Loading states', {
-    matchesLoading,
-    predictionsLoading,
-    statsLoading,
-    leaderboardLoading
-  })
-  
-  logger.debug('HomePage', 'Data states', {
-    upcomingMatches: upcomingMatches?.length || 0,
-    userPredictions: userPredictions?.length || 0,
-    userStats: !!userStats,
-    leaderboard: leaderboard?.length || 0
-  })
-  
-  logger.debug('HomePage', 'Error states', {
-    matchesError: !!matchesError,
-    predictionsError: !!predictionsError,
-    statsError: !!statsError,
-    leaderboardError: !!leaderboardError
-  })
-
   if (matchesLoading) {
-    logger.info('HomePage', 'Showing loading spinner for matches')
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
