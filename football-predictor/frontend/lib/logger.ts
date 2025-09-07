@@ -1,9 +1,9 @@
-// Logger utility for frontend debugging
-// Writes logs to both console and files for deployment debugging
+// Logger utility for frontend
+// Production-ready logging with minimal overhead
 
 interface LogEntry {
   timestamp: string
-  level: 'info' | 'warn' | 'error' | 'debug'
+  level: 'info' | 'warn' | 'error'
   component: string
   message: string
   data?: any
@@ -20,20 +20,7 @@ class Logger {
     // Generate unique session ID for this frontend instance
     this.sessionId = `frontend-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     
-    // Clear logs on startup
-    this.clearLogs()
-    
-    // Flush logs periodically
-    setInterval(() => {
-      this.flushLogs()
-    }, this.flushInterval)
-
-    // Flush logs before page unload
-    if (typeof window !== 'undefined') {
-      window.addEventListener('beforeunload', () => {
-        this.flushLogs()
-      })
-    }
+    // Production mode - minimal logging
   }
 
   private formatLog(level: string, component: string, message: string, data?: any): LogEntry {
@@ -57,87 +44,26 @@ class Logger {
   }
 
   private async clearLogs() {
-    // Only make API calls in browser environment
-    if (typeof window === 'undefined') {
-      console.log('🧹 Skipping log clear during SSR/build')
-      return
-    }
-
-    try {
-      // Get the API base URL from environment or use default
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8003'
-      
-      // Clear logs on backend
-      await fetch(`${apiBaseUrl}/api/logs/clear`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ sessionId: this.sessionId })
-      })
-      console.log('🧹 Logs cleared for new session:', this.sessionId)
-    } catch (error) {
-      console.warn('Error clearing logs:', error)
-    }
+    // Production mode - no log clearing
+    return
   }
 
   private async flushLogs() {
-    if (this.logBuffer.length === 0) return
-
-    // Only make API calls in browser environment
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    const logsToFlush = [...this.logBuffer]
-    this.logBuffer = []
-
-    try {
-      // Get the API base URL from environment or use default
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8003'
-      
-      // Send logs to backend endpoint
-      const response = await fetch(`${apiBaseUrl}/api/logs`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          logs: logsToFlush,
-          sessionId: this.sessionId 
-        })
-      })
-
-      if (!response.ok) {
-        console.warn('Failed to send logs to backend:', response.status)
-      }
-    } catch (error) {
-      console.warn('Error sending logs to backend:', error)
-    }
+    // Production mode - no log flushing
+    return
   }
 
   private log(level: string, component: string, message: string, data?: any) {
-    const entry = this.formatLog(level, component, message, data)
-    
-    // Add to buffer for file logging
-    this.addToBuffer(entry)
-    
-    // Also log to console with emoji
-    const emoji = this.getEmoji(level)
-    const consoleMessage = `${emoji} [${component}] ${message}`
-    
-    switch (level) {
-      case 'error':
+    // Production mode - only log errors and warnings
+    if (level === 'error' || level === 'warn') {
+      const emoji = this.getEmoji(level)
+      const consoleMessage = `${emoji} [${component}] ${message}`
+      
+      if (level === 'error') {
         console.error(consoleMessage, data || '')
-        break
-      case 'warn':
+      } else {
         console.warn(consoleMessage, data || '')
-        break
-      case 'debug':
-        console.debug(consoleMessage, data || '')
-        break
-      default:
-        console.log(consoleMessage, data || '')
+      }
     }
   }
 
@@ -145,7 +71,6 @@ class Logger {
     switch (level) {
       case 'error': return '❌'
       case 'warn': return '⚠️'
-      case 'debug': return '🔍'
       default: return '✅'
     }
   }
@@ -162,9 +87,6 @@ class Logger {
     this.log('error', component, message, data)
   }
 
-  debug(component: string, message: string, data?: any) {
-    this.log('debug', component, message, data)
-  }
 
   // Force flush logs immediately
   async flush() {
@@ -189,4 +111,3 @@ export const logger = new Logger()
 export const logInfo = (component: string, message: string, data?: any) => logger.info(component, message, data)
 export const logWarn = (component: string, message: string, data?: any) => logger.warn(component, message, data)
 export const logError = (component: string, message: string, data?: any) => logger.error(component, message, data)
-export const logDebug = (component: string, message: string, data?: any) => logger.debug(component, message, data)

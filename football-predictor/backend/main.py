@@ -18,14 +18,11 @@ from app.api.v1.api import api_router
 async def lifespan(app: FastAPI):
     """Application lifespan events"""
     # Startup
-    print("🚀 Starting Football Prediction API...")
     await init_db()
-    print("✅ Database initialized")
     
     yield
     
     # Shutdown
-    print("🛑 Shutting down Football Prediction API...")
 
 
 # Create FastAPI app

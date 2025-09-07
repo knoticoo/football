@@ -62,7 +62,7 @@ check_docker() {
 
 # Function to check for port conflicts
 check_port_conflicts() {
-    echo "🔍 Checking for port conflicts..."
+    echo "Checking for port conflicts..."
     
     # Ports used by football-predictor
     PORTS=(3002 8003 8004 6380 8080 8443)
@@ -176,7 +176,7 @@ echo "⏳ Waiting for services to start..."
 sleep 10
 
 # Check service health
-echo "🔍 Checking service health..."
+echo "Checking service health..."
 
 # Function to check service
 check_service() {
@@ -210,7 +210,7 @@ check_service "Telegram Bot" "http://localhost:8004/health"
 # Function to show frontend logs
 show_frontend_logs() {
     echo ""
-    echo "🔍 Frontend Debug Logs (last 20 lines):"
+    echo "Frontend Logs (last 20 lines):"
     echo "=========================================="
     
     # Create logs directory if it doesn't exist
@@ -259,7 +259,7 @@ echo "   View backend logs: docker compose --project-name football-predictor log
 echo "   View frontend logs: docker compose --project-name football-predictor logs -f frontend"
 echo "   View bot logs:     docker compose --project-name football-predictor logs -f telegram-bot"
 echo ""
-echo "🔍 Frontend Debug Logs:"
+echo "Frontend Logs:"
 echo "   View frontend logs: tail -f /workspace/logs/frontend.log"
 echo "   View session logs:  tail -f /workspace/logs/frontend_sessions.log"
 echo "   Clear frontend logs: rm -f /workspace/logs/frontend*.log"

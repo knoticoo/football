@@ -2,7 +2,7 @@
 
 # Frontend Logs Viewer Script
 
-echo "🔍 Football Predictor Frontend Logs Viewer"
+echo "Football Predictor Frontend Logs Viewer"
 echo "=========================================="
 
 # Create logs directory if it doesn't exist

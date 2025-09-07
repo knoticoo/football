@@ -22,12 +22,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  // Clear console on every page load/refresh
-  if (typeof window !== 'undefined') {
-    console.clear()
-    logger.info('Layout', 'Frontend layout loaded - fresh logs start here')
-    logger.info('Layout', 'Layout timestamp', { timestamp: new Date().toISOString() })
-  }
   
   return (
     <html lang="en" className="h-full">

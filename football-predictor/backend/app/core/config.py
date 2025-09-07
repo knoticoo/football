@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # Server Configuration
     HOST: str = "0.0.0.0"
     PORT: int = 8001  # Different port to avoid conflicts
-    DEBUG: bool = True
+    DEBUG: bool = False
     
     # CORS Configuration
     ALLOWED_HOSTS: List[str] = [

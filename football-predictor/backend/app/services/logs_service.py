@@ -21,18 +21,15 @@ class LogsService:
             if session_id:
                 # Clear logs for specific session
                 self._clear_session_logs(session_id)
-                print(f"🧹 Cleared logs for session: {session_id}")
             else:
                 # Clear all logs
                 if self.frontend_logs_file.exists():
                     self.frontend_logs_file.unlink()
                 if self.session_logs_file.exists():
                     self.session_logs_file.unlink()
-                print("🧹 Cleared all frontend logs")
             
             return {"status": "success", "message": "Logs cleared"}
         except Exception as e:
-            print(f"❌ Error clearing logs: {e}")
             return {"status": "error", "message": str(e)}
     
     def save_logs(self, logs: List[Dict[str, Any]], session_id: str = None):
@@ -71,11 +68,9 @@ class LogsService:
                             f.write(f"  Data: {json.dumps(log['data'], indent=2)}\n")
                         f.write("\n")
             
-            print(f"📝 Saved {len(logs)} logs to file")
             return {"status": "success", "message": f"Saved {len(logs)} logs"}
             
         except Exception as e:
-            print(f"❌ Error saving logs: {e}")
             return {"status": "error", "message": str(e)}
     
     def get_logs(self, session_id: str = None, limit: int = 100):
@@ -107,7 +102,6 @@ class LogsService:
             return {"status": "success", "logs": logs[-limit:]}
             
         except Exception as e:
-            print(f"❌ Error getting logs: {e}")
             return {"status": "error", "message": str(e)}
     
     def _clear_session_logs(self, session_id: str):
