@@ -1,11 +1,12 @@
 import axios from 'axios'
+import { logger } from './logger'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8003'
 
 // Clear console on startup for fresh logs
 console.clear()
-console.log('🚀 Frontend starting up...')
-console.log('📡 API Base URL:', API_BASE_URL)
+logger.info('API', 'Frontend starting up...')
+logger.info('API', 'API Base URL configured', { baseURL: API_BASE_URL })
 
 // Create axios instance
 const apiClient = axios.create({
@@ -20,20 +21,21 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
-    console.log(`📤 API Request: ${config.method?.toUpperCase()} ${config.url}`)
-    console.log('📤 Request data:', config.data)
-    console.log('📤 Request params:', config.params)
+    logger.info('API', `Request: ${config.method?.toUpperCase()} ${config.url}`, {
+      data: config.data,
+      params: config.params
+    })
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
-      console.log('🔑 Auth token added to request')
+      logger.info('API', 'Auth token added to request')
     } else {
-      console.log('⚠️ No auth token found')
+      logger.warn('API', 'No auth token found')
     }
     return config
   },
   (error) => {
-    console.error('❌ Request interceptor error:', error)
+    logger.error('API', 'Request interceptor error', error)
     return Promise.reject(error)
   }
 )
@@ -41,17 +43,19 @@ apiClient.interceptors.request.use(
 // Response interceptor to handle errors
 apiClient.interceptors.response.use(
   (response) => {
-    console.log(`📥 API Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`)
-    console.log('📥 Response data:', response.data)
+    logger.info('API', `Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, {
+      data: response.data
+    })
     return response
   },
   (error) => {
-    console.error(`❌ API Error: ${error.response?.status || 'Network Error'} ${error.config?.method?.toUpperCase()} ${error.config?.url}`)
-    console.error('❌ Error details:', error.response?.data || error.message)
-    console.error('❌ Full error:', error)
+    logger.error('API', `Error: ${error.response?.status || 'Network Error'} ${error.config?.method?.toUpperCase()} ${error.config?.url}`, {
+      errorDetails: error.response?.data || error.message,
+      fullError: error
+    })
     
     if (error.response?.status === 401) {
-      console.log('🔐 Unauthorized - removing token and redirecting to login')
+      logger.warn('API', 'Unauthorized - removing token and redirecting to login')
       localStorage.removeItem('token')
       window.location.href = '/auth/login'
     }

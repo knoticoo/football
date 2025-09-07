@@ -7,14 +7,22 @@ interface LogEntry {
   component: string
   message: string
   data?: any
+  sessionId?: string
 }
 
 class Logger {
   private logBuffer: LogEntry[] = []
   private maxBufferSize = 1000
   private flushInterval = 5000 // 5 seconds
+  private sessionId: string
 
   constructor() {
+    // Generate unique session ID for this frontend instance
+    this.sessionId = `frontend-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    
+    // Clear logs on startup
+    this.clearLogs()
+    
     // Flush logs periodically
     setInterval(() => {
       this.flushLogs()
@@ -34,7 +42,8 @@ class Logger {
       level: level as LogEntry['level'],
       component,
       message,
-      data
+      data,
+      sessionId: this.sessionId
     }
   }
 
@@ -44,6 +53,22 @@ class Logger {
     // Keep buffer size manageable
     if (this.logBuffer.length > this.maxBufferSize) {
       this.logBuffer = this.logBuffer.slice(-this.maxBufferSize)
+    }
+  }
+
+  private async clearLogs() {
+    try {
+      // Clear logs on backend
+      await fetch('/api/logs/clear', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sessionId: this.sessionId })
+      })
+      console.log('🧹 Logs cleared for new session:', this.sessionId)
+    } catch (error) {
+      console.warn('Error clearing logs:', error)
     }
   }
 
@@ -60,7 +85,10 @@ class Logger {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ logs: logsToFlush })
+        body: JSON.stringify({ 
+          logs: logsToFlush,
+          sessionId: this.sessionId 
+        })
       })
 
       if (!response.ok) {
@@ -124,6 +152,16 @@ class Logger {
   // Force flush logs immediately
   async flush() {
     await this.flushLogs()
+  }
+
+  // Clear logs manually
+  async clear() {
+    await this.clearLogs()
+  }
+
+  // Get current session ID
+  getSessionId() {
+    return this.sessionId
   }
 }
 

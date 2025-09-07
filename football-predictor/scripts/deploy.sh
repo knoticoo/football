@@ -207,6 +207,39 @@ check_service "Backend API" "http://localhost:8003/health"
 check_service "Frontend" "http://localhost:3002"
 check_service "Telegram Bot" "http://localhost:8004/health"
 
+# Function to show frontend logs
+show_frontend_logs() {
+    echo ""
+    echo "🔍 Frontend Debug Logs (last 20 lines):"
+    echo "=========================================="
+    
+    # Create logs directory if it doesn't exist
+    mkdir -p /workspace/logs
+    
+    if [ -f "/workspace/logs/frontend.log" ]; then
+        echo "📄 Main frontend log:"
+        tail -20 /workspace/logs/frontend.log
+    else
+        echo "⚠️  No frontend logs found yet. Logs will appear when the frontend starts making requests."
+    fi
+    
+    echo ""
+    echo "📄 Session logs:"
+    if [ -f "/workspace/logs/frontend_sessions.log" ]; then
+        tail -10 /workspace/logs/frontend_sessions.log
+    else
+        echo "⚠️  No session logs found yet."
+    fi
+    
+    echo ""
+    echo "💡 To monitor logs in real-time, run:"
+    echo "   tail -f /workspace/logs/frontend.log"
+    echo "=========================================="
+}
+
+# Show frontend logs
+show_frontend_logs
+
 echo ""
 echo "🎉 Deployment completed successfully!"
 echo ""
@@ -225,6 +258,11 @@ echo "   View all logs:     docker compose --project-name football-predictor log
 echo "   View backend logs: docker compose --project-name football-predictor logs -f backend"
 echo "   View frontend logs: docker compose --project-name football-predictor logs -f frontend"
 echo "   View bot logs:     docker compose --project-name football-predictor logs -f telegram-bot"
+echo ""
+echo "🔍 Frontend Debug Logs:"
+echo "   View frontend logs: tail -f /workspace/logs/frontend.log"
+echo "   View session logs:  tail -f /workspace/logs/frontend_sessions.log"
+echo "   Clear frontend logs: rm -f /workspace/logs/frontend*.log"
 echo ""
 echo "🔧 Service Management:"
 echo "   Stop services:     docker compose --project-name football-predictor down"

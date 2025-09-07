@@ -2,13 +2,14 @@
 
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { useState } from 'react'
+import { logger } from '@/lib/logger'
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  console.log('🔧 Providers component rendered')
+  logger.info('Providers', 'Component rendered')
   
   const [queryClient] = useState(
     () => {
-      console.log('🔄 Creating new QueryClient instance')
+      logger.info('Providers', 'Creating new QueryClient instance')
       return new QueryClient({
         defaultOptions: {
           queries: {
@@ -22,7 +23,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     }
   )
 
-  console.log('✅ QueryClient provider ready')
+  logger.info('Providers', 'QueryClient provider ready')
 
   return (
     <QueryClientProvider client={queryClient}>
