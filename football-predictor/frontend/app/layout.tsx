@@ -4,6 +4,7 @@ import './globals.css'
 import { Providers } from './providers'
 import { Toaster } from 'react-hot-toast'
 import { Navigation } from '@/components/Navigation'
+import { logger } from '@/lib/logger'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -21,6 +22,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Clear console on every page load/refresh
+  if (typeof window !== 'undefined') {
+    console.clear()
+    logger.info('Layout', 'Frontend layout loaded - fresh logs start here')
+    logger.info('Layout', 'Layout timestamp', { timestamp: new Date().toISOString() })
+  }
+  
   return (
     <html lang="en" className="h-full">
       <body className={`${inter.className} h-full`}>

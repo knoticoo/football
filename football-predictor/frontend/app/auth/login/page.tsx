@@ -15,19 +15,32 @@ export default function LoginPage() {
     password: '',
   })
   const [showPassword, setShowPassword] = useState(false)
+  
+  console.log('🔐 LoginPage component rendered')
+  console.log('📝 Form data:', formData)
+  console.log('👁️ Show password:', showPassword)
 
   const loginMutation = useMutation(
-    (credentials: { username: string; password: string }) =>
-      api.auth.login(credentials),
+    (credentials: { username: string; password: string }) => {
+      console.log('🔐 Attempting login with credentials:', { username: credentials.username, password: '***' })
+      return api.auth.login(credentials)
+    },
     {
       onSuccess: (response) => {
+        console.log('✅ Login successful:', response.data)
         const { access_token, user } = response.data
+        console.log('💾 Storing token in localStorage')
         localStorage.setItem('token', access_token)
+        console.log('🎉 Showing success toast')
         toast.success(`Welcome back, ${user.full_name || user.username}!`)
+        console.log('🔄 Redirecting to dashboard')
         router.push('/dashboard')
       },
       onError: (error: any) => {
+        console.error('❌ Login failed:', error)
+        console.error('❌ Error response:', error.response?.data)
         const message = error.response?.data?.detail || 'Login failed'
+        console.log('🚨 Showing error toast:', message)
         toast.error(message)
       },
     }
@@ -35,14 +48,20 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('📝 Form submitted with data:', { username: formData.username, password: '***' })
+    
     if (!formData.username || !formData.password) {
+      console.log('❌ Form validation failed - missing fields')
       toast.error('Please fill in all fields')
       return
     }
+    
+    console.log('✅ Form validation passed - submitting login request')
     loginMutation.mutate(formData)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('📝 Input changed:', e.target.name, '=', e.target.value)
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
