@@ -4,9 +4,12 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { useState } from 'react'
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  console.log('🔧 Providers component rendered')
+  
   const [queryClient] = useState(
-    () =>
-      new QueryClient({
+    () => {
+      console.log('🔄 Creating new QueryClient instance')
+      return new QueryClient({
         defaultOptions: {
           queries: {
             staleTime: 60 * 1000, // 1 minute
@@ -16,7 +19,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
           },
         },
       })
+    }
   )
+
+  console.log('✅ QueryClient provider ready')
 
   return (
     <QueryClientProvider client={queryClient}>

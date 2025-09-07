@@ -21,6 +21,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Clear console on every page load/refresh
+  if (typeof window !== 'undefined') {
+    console.clear()
+    console.log('🚀 Frontend layout loaded - fresh logs start here')
+    console.log('⏰ Timestamp:', new Date().toISOString())
+  }
+  
   return (
     <html lang="en" className="h-full">
       <body className={`${inter.className} h-full`}>

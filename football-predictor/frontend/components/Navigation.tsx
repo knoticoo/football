@@ -21,25 +21,47 @@ export function Navigation() {
   const pathname = usePathname()
   const [user, setUser] = useState<any>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  
+  console.log('🧭 Navigation component rendered')
+  console.log('📍 Current pathname:', pathname)
+  console.log('👤 User state:', user)
+  console.log('📱 Menu open:', isMenuOpen)
 
   // Check if user is logged in
   useEffect(() => {
+    console.log('🔄 Navigation useEffect triggered - checking user authentication')
     const token = localStorage.getItem('token')
+    console.log('🔑 Token found in localStorage:', !!token)
+    
     if (token) {
+      console.log('🔍 Verifying token and fetching user data in Navigation...')
       api.auth.getMe()
-        .then(response => setUser(response.data))
-        .catch(() => {
+        .then(response => {
+          console.log('✅ User authenticated successfully in Navigation:', response.data)
+          setUser(response.data)
+        })
+        .catch(error => {
+          console.error('❌ Token verification failed in Navigation:', error)
+          console.log('🗑️ Removing invalid token from Navigation')
           localStorage.removeItem('token')
           setUser(null)
         })
+    } else {
+      console.log('⚠️ No token found in Navigation - user not authenticated')
     }
   }, [])
 
   const handleLogout = () => {
+    console.log('🚪 Logout initiated')
+    console.log('🗑️ Removing token from localStorage')
     localStorage.removeItem('token')
+    console.log('👤 Clearing user state')
     setUser(null)
+    console.log('🎉 Showing logout success toast')
     toast.success('Logged out successfully')
+    console.log('🔄 Redirecting to home page')
     router.push('/')
+    console.log('📱 Closing mobile menu')
     setIsMenuOpen(false)
   }
 
@@ -60,8 +82,11 @@ export function Navigation() {
 
   // Don't show navigation on auth pages
   if (pathname.startsWith('/auth/')) {
+    console.log('🚫 Not showing navigation on auth page:', pathname)
     return null
   }
+  
+  console.log('✅ Showing navigation for pathname:', pathname)
 
   return (
     <nav className="bg-white shadow-lg border-b border-gray-200">

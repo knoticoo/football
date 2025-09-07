@@ -20,48 +20,113 @@ import { LoadingSpinner } from '@/components/LoadingSpinner'
 
 export default function HomePage() {
   const [user, setUser] = useState(null)
+  
+  console.log('🏠 HomePage component rendered')
+  console.log('👤 Current user state:', user)
 
   // Fetch upcoming matches
-  const { data: upcomingMatches, isLoading: matchesLoading } = useQuery(
+  const { data: upcomingMatches, isLoading: matchesLoading, error: matchesError } = useQuery(
     'upcoming-matches',
-    () => api.matches.getUpcoming({ limit: 6 }).then(response => response.data),
+    () => {
+      console.log('🔍 Fetching upcoming matches...')
+      return api.matches.getUpcoming({ limit: 6 }).then(response => {
+        console.log('✅ Upcoming matches fetched successfully:', response.data)
+        return response.data
+      }).catch(error => {
+        console.error('❌ Failed to fetch upcoming matches:', error)
+        throw error
+      })
+    },
     {
       refetchInterval: 60000, // Refetch every minute
+      onError: (error) => {
+        console.error('❌ Upcoming matches query error:', error)
+      }
     }
   )
 
   // Fetch user predictions
-  const { data: userPredictions, isLoading: predictionsLoading } = useQuery(
+  const { data: userPredictions, isLoading: predictionsLoading, error: predictionsError } = useQuery(
     'user-predictions',
-    () => api.predictions.getUserPredictions({ limit: 5 }).then(response => response.data),
+    () => {
+      console.log('🔍 Fetching user predictions...')
+      return api.predictions.getUserPredictions({ limit: 5 }).then(response => {
+        console.log('✅ User predictions fetched successfully:', response.data)
+        return response.data
+      }).catch(error => {
+        console.error('❌ Failed to fetch user predictions:', error)
+        throw error
+      })
+    },
     {
       enabled: !!user,
+      onError: (error) => {
+        console.error('❌ User predictions query error:', error)
+      }
     }
   )
 
   // Fetch user stats
-  const { data: userStats, isLoading: statsLoading } = useQuery(
+  const { data: userStats, isLoading: statsLoading, error: statsError } = useQuery(
     'user-stats',
-    () => api.users.getStats().then(response => response.data),
+    () => {
+      console.log('🔍 Fetching user stats...')
+      return api.users.getStats().then(response => {
+        console.log('✅ User stats fetched successfully:', response.data)
+        return response.data
+      }).catch(error => {
+        console.error('❌ Failed to fetch user stats:', error)
+        throw error
+      })
+    },
     {
       enabled: !!user,
+      onError: (error) => {
+        console.error('❌ User stats query error:', error)
+      }
     }
   )
 
   // Fetch leaderboard
-  const { data: leaderboard, isLoading: leaderboardLoading } = useQuery(
+  const { data: leaderboard, isLoading: leaderboardLoading, error: leaderboardError } = useQuery(
     'leaderboard',
-    () => api.predictions.getLeaderboard({ limit: 5 }).then(response => response.data)
+    () => {
+      console.log('🔍 Fetching leaderboard...')
+      return api.predictions.getLeaderboard({ limit: 5 }).then(response => {
+        console.log('✅ Leaderboard fetched successfully:', response.data)
+        return response.data
+      }).catch(error => {
+        console.error('❌ Failed to fetch leaderboard:', error)
+        throw error
+      })
+    },
+    {
+      onError: (error) => {
+        console.error('❌ Leaderboard query error:', error)
+      }
+    }
   )
 
   useEffect(() => {
+    console.log('🔄 useEffect triggered - checking user authentication')
     // Check if user is logged in
     const token = localStorage.getItem('token')
+    console.log('🔑 Token found in localStorage:', !!token)
+    
     if (token) {
+      console.log('🔍 Verifying token and fetching user data...')
       // Verify token and get user data
-      api.auth.getMe().then(response => setUser(response.data)).catch(() => {
+      api.auth.getMe().then(response => {
+        console.log('✅ User authenticated successfully:', response.data)
+        setUser(response.data)
+      }).catch(error => {
+        console.error('❌ Token verification failed:', error)
+        console.log('🗑️ Removing invalid token')
         localStorage.removeItem('token')
+        setUser(null)
       })
+    } else {
+      console.log('⚠️ No token found - user not authenticated')
     }
   }, [])
 
@@ -88,7 +153,29 @@ export default function HomePage() {
     },
   ]
 
+  console.log('📊 Loading states:', {
+    matchesLoading,
+    predictionsLoading,
+    statsLoading,
+    leaderboardLoading
+  })
+  
+  console.log('📊 Data states:', {
+    upcomingMatches: upcomingMatches?.length || 0,
+    userPredictions: userPredictions?.length || 0,
+    userStats: !!userStats,
+    leaderboard: leaderboard?.length || 0
+  })
+  
+  console.log('❌ Error states:', {
+    matchesError: !!matchesError,
+    predictionsError: !!predictionsError,
+    statsError: !!statsError,
+    leaderboardError: !!leaderboardError
+  })
+
   if (matchesLoading) {
+    console.log('⏳ Showing loading spinner for matches')
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
