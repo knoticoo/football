@@ -6,6 +6,43 @@ set -e  # Exit on any error
 
 echo "🚀 Starting Football Predictor Deployment..."
 
+# Function to install system dependencies
+install_system_deps() {
+    echo "📦 Installing system dependencies..."
+    
+    # Update package index
+    sudo apt-get update
+    
+    # Install essential build tools and libraries
+    sudo apt-get install -y \
+        build-essential \
+        gcc \
+        g++ \
+        make \
+        cmake \
+        pkg-config \
+        libffi-dev \
+        libssl-dev \
+        libxml2-dev \
+        libxslt1-dev \
+        zlib1g-dev \
+        libjpeg-dev \
+        libpng-dev \
+        libfreetype6-dev \
+        liblcms2-dev \
+        libwebp-dev \
+        libharfbuzz-dev \
+        libfribidi-dev \
+        libxcb1-dev \
+        curl \
+        wget \
+        git \
+        net-tools \
+        procps
+    
+    echo "✅ System dependencies installed"
+}
+
 # Function to check if Docker is installed and running
 check_docker() {
     if ! command -v docker &> /dev/null; then
@@ -116,6 +153,9 @@ stop_football_services() {
     fi
 }
 
+# Install system dependencies
+install_system_deps
+
 # Check Docker installation and status
 check_docker
 
@@ -158,6 +198,65 @@ stop_football_services
 # echo "🗑️ Removing old volumes..."
 # docker compose down -v
 
+# Function to handle Python dependency issues
+fix_python_deps() {
+    echo "🐍 Checking Python dependency compatibility..."
+    
+    # Create a temporary requirements file with compatible versions
+    cat > backend/requirements-compatible.txt << EOF
+# Core FastAPI dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Database
+sqlalchemy==2.0.23
+alembic==1.13.1
+
+# Authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Email validation
+email-validator==2.1.0
+
+# HTTP requests
+httpx==0.25.2
+aiohttp==3.9.1
+
+# Background tasks
+celery==5.3.4
+redis==5.0.1
+
+# Scheduling
+apscheduler==3.10.4
+
+# Data processing (compatible versions)
+numpy==1.24.4
+pandas==2.0.3
+scikit-learn==1.3.2
+
+# Environment
+python-dotenv==1.0.0
+
+# CORS
+fastapi-cors==0.0.6
+
+# Logging
+loguru==0.7.2
+
+# Development (optional)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+isort==5.12.0
+EOF
+
+    echo "✅ Created compatible requirements file"
+}
+
 # Build and start services
 echo "🔨 Building and starting services..."
 
@@ -168,8 +267,15 @@ if [ ! -f "docker-compose.yml" ]; then
     exit 1
 fi
 
+# Fix Python dependencies
+fix_python_deps
+
 # Build and start services with project name to avoid conflicts
-docker compose --project-name football-predictor up --build -d
+echo "🔨 Building Docker images..."
+docker compose --project-name football-predictor build --no-cache
+
+echo "🚀 Starting services..."
+docker compose --project-name football-predictor up -d
 
 # Wait for services to start
 echo "⏳ Waiting for services to start..."
@@ -203,9 +309,47 @@ check_service() {
 }
 
 # Check services
-check_service "Backend API" "http://localhost:8003/health"
+echo "🔍 Checking service health..."
+
+# Check backend first with detailed logging
+echo "⏳ Checking Backend API..."
+if check_service "Backend API" "http://localhost:8003/health"; then
+    echo "✅ Backend API is healthy"
+else
+    echo "❌ Backend API is unhealthy - checking logs..."
+    echo "Backend logs:"
+    docker compose --project-name football-predictor logs --tail=50 backend
+    echo ""
+    echo "Trying to restart backend..."
+    docker compose --project-name football-predictor restart backend
+    sleep 10
+    if check_service "Backend API" "http://localhost:8003/health"; then
+        echo "✅ Backend API recovered after restart"
+    else
+        echo "❌ Backend API still unhealthy after restart"
+        echo "Full backend logs:"
+        docker compose --project-name football-predictor logs backend
+    fi
+fi
+
 check_service "Frontend" "http://localhost:3002"
 check_service "Telegram Bot" "http://localhost:8004/health"
+
+# Function to show backend logs
+show_backend_logs() {
+    echo ""
+    echo "Backend Logs (last 30 lines):"
+    echo "=========================================="
+    
+    # Show Docker container logs
+    echo "📄 Docker container logs:"
+    docker compose --project-name football-predictor logs --tail=30 backend
+    
+    echo ""
+    echo "💡 To monitor backend logs in real-time, run:"
+    echo "   docker compose --project-name football-predictor logs -f backend"
+    echo "=========================================="
+}
 
 # Function to show frontend logs
 show_frontend_logs() {
@@ -237,6 +381,9 @@ show_frontend_logs() {
     echo "=========================================="
 }
 
+# Show backend logs
+show_backend_logs
+
 # Show frontend logs
 show_frontend_logs
 
@@ -258,6 +405,15 @@ echo "   View all logs:     docker compose --project-name football-predictor log
 echo "   View backend logs: docker compose --project-name football-predictor logs -f backend"
 echo "   View frontend logs: docker compose --project-name football-predictor logs -f frontend"
 echo "   View bot logs:     docker compose --project-name football-predictor logs -f telegram-bot"
+echo "   View redis logs:   docker compose --project-name football-predictor logs -f redis"
+echo "   View nginx logs:   docker compose --project-name football-predictor logs -f nginx"
+echo ""
+echo "Backend Debugging:"
+echo "   Test health endpoint: curl http://localhost:8003/health"
+echo "   Test API docs:       curl http://localhost:8003/docs"
+echo "   Check backend status: docker compose --project-name football-predictor ps backend"
+echo "   Restart backend:     docker compose --project-name football-predictor restart backend"
+echo "   Rebuild backend:     docker compose --project-name football-predictor build backend"
 echo ""
 echo "Frontend Logs:"
 echo "   View frontend logs: tail -f /workspace/logs/frontend.log"
